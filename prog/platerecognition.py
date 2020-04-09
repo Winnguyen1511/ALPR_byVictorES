@@ -15,18 +15,18 @@ import os
 MIN_WIDTH = 300
 MIN_HEIGHT = 80
 
-dir = '/home/khoa/AI_DeepLearning/LicensePlateRecognition/LicensePlateRecognition/'
-imageDir = dir+'resources/'
+# dir = '/home/khoa/AI_DeepLearning/LicensePlateRecognition/LicensePlateRecognition/'
+# # imageDir = dir+'resources/'
 
-platePbDir = dir +'database/protobuf/yolo-plate.pb'
-plateMetaDir = dir+'database/meta/yolo-plate.meta'
+# platePbDir = dir +'database/protobuf/yolo-plate.pb'
+# plateMetaDir = dir+'database/meta/yolo-plate.meta'
 
-charPbDir = dir+'database/protobuf/yolo-character.pb'
-charMetaDir = dir+'database/meta/yolo-character.meta'
+# charPbDir = dir+'database/protobuf/yolo-character.pb'
+# charMetaDir = dir+'database/meta/yolo-character.meta'
 
-charCnnDir = dir+'database/character_recognition.h5'
+# charCnnDir = dir+'database/character_recognition.h5'
 
-gpuMode = 0.9
+# gpuMode = 0.9
 def sysInit(platePb, plateMeta, charPb, charMeta,charCnn, gpu):
     plateOptions = {"pbLoad": platePb, "metaLoad": plateMeta, "gpu": gpu}
     yoloPlate = TFNet(plateOptions)
@@ -81,16 +81,38 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
     # print(result)
     result = rm.opencvReadPlate(imcv, characterRecognition)
     print(">>Plate number OpenCV: ", result)
-    print("******************************")
+    
     return True
 
 
 def main():
-    # plateRecog(imageDir, platePbDir, plateMetaDir,
-    #             charPbDir, charMetaDir, charCnnDir, gpuMode)
+    #arguments parser:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("workspace")
+    parser.add_argument("platePb")
+    parser.add_argument("plateMeta")
+    parser.add_argument("charPb")
+    parser.add_argument("charMeta")
+    parser.add_argument("charCnn")
+    parser.add_argument("gpuMode")
+
+    args = parser.parse_args()
+    workspace = args.workspace
+    os.chdir(workspace)
+    
+    platePbDir = args.platePb
+    plateMetaDir = args.plateMeta
+
+    charPbDir = args.charPb
+    charMetaDir = args.charMeta
+
+    charCnnDir = args.charCnn
+
+    gpuMode = float(args.gpuMode)
+    #Start to run the program:
     yoloPlate, yoloCharacter, characterRecognition = sysInit(platePbDir, plateMetaDir,
                 charPbDir, charMetaDir, charCnnDir, gpuMode)
-    for i in range(0,10):    
+    for i in range(0,5):    
         print(".")
     time.sleep(0.5)
     print(">>> Init Completed.")
@@ -99,11 +121,14 @@ def main():
     time.sleep(1)
     os.system('clear')
     print("*****PLATE RECOGNITION*****")
+    print("> Workspace: ",workspace)
+    print("> GPU mode: ", gpuMode * 100,"%")
     while(True):
+        print("Please enter the image (0 or q to exit)")
         image = input("> Input image: ")
         if(image == '0' or image == 'q'):
             break  
-        image = imageDir + image 
+        # image = workspace + image 
         start = timeit.default_timer()
         res = plateRecog(image, yoloPlate, yoloCharacter, characterRecognition)
         stop = timeit.default_timer()
@@ -111,6 +136,7 @@ def main():
         if(res == True):
             cv2.waitKey(0)
             cv2.destroyAllWindows()
+            print("******************************")
         
     print(">>> Exiting...")
 main()
