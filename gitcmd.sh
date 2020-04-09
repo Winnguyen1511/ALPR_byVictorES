@@ -5,7 +5,7 @@ api=https://api.github.com/user/repos
 reponame="ALPR_byVictorES"
 private="false"
 gitdir=git@github.com:$user/$reponame.git
-curl -u $user $api -d '{"ALPR_byVictorES"}'
+curl -u $user $api -d '{"name":"ALPR_byVictorES"}'
 
 git init
 git add .
