@@ -62,14 +62,14 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
     imsize = im.shape
     w = imsize[1]
     h = imsize[0]
-    # print(">>Origin: Width: ", w, ", Height: ", h)
+    print(">>Origin: Width: ", w, ", Height: ", h)
     if w < MIN_WIDTH or h < MIN_HEIGHT:
         w_scale = math.ceil(MIN_WIDTH / w)
         h_scale = math.ceil(MIN_HEIGHT / h)
         scale = max(w_scale, h_scale)
         w = w * scale
         h = h * scale
-    # print(">>Scale up: Width: ", w, ", Height: ", h)
+    print(">>Scale up: Width: ", w, ", Height: ", h)
     im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
     imcv = im.copy()
     #Character Segmentation by YOLO:

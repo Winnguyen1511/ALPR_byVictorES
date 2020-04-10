@@ -12,10 +12,13 @@ THIS_DIR=$PWD
 
 RESOURCE_DIR=$THIS_DIR/"resources/"
 WORKSPACE=$THIS_DIR/"resources/"
+SETUP=$THIS_DIR/"setup"
 
 DATABASE_DIR=$THIS_DIR/"database/"
 META_DIR=$DATABASE_DIR"meta/"
 PROTOBUF_DIR=$DATABASE_DIR"protobuf/"
+
+
 
 META_PLATE=$META_DIR"yolo-plate.meta"
 META_CHARACTER=$META_DIR"yolo-character.meta"
@@ -32,12 +35,31 @@ helpFunction()
 {
     echo "Usage: ./alpr "
     echo "Usage: ./alpr -f [full_path_workspace] -g [gpu-usage]"
+    echo "Usage: ./alpr --clear"
+    echo "Usage: ./alpr --setup"
 }
 
 setupFunction()
 {
     echo "setup..."
-    ./setup.sh
+    if [ ! -d $DATABASE_DIR ]; then
+        mkdir $DATABASE_DIR
+        mkdir $PROTOBUF_DIR
+        mkdir $META_DIR
+    else
+        rm -rf $DATABASE_DIR
+        mkdir $DATABASE_DIR
+        mkdir $PROTOBUF_DIR
+        mkdir $META_DIR
+    fi
+    ./setup.sh $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN
+}
+
+clearFunction()
+{
+    echo "Clearing database and credentials..."
+    rm -rf $DATABASE_DIR
+    rm -rf $SETUP/".credentials"
 }
 
 if [ "$1" == "--help" ]; then
@@ -46,6 +68,11 @@ if [ "$1" == "--help" ]; then
 fi
 if [ "$1" == "--setup" ]; then
     setupFunction
+    exit
+fi
+
+if [ "$1" == "--clear" ]; then
+    clearFunction
     exit
 fi
 
@@ -84,4 +111,22 @@ if [ ! -d $DATABASE_DIR ] || [ ! -d $META_DIR ] || [ ! -d $PROTOBUF_DIR ]; then
     exit
 fi
 
+if [ ! -f $CNN ]; then
+    echo "Error: Missing file $CNN"
+    echo "       Please download $CNN"
+    echo "       Or run ./alpr --setup to download."
+    exit
+fi
+if [ ! -f $META_PLATE ] || [ ! -f $PROTOBUF_PLATE ]; then
+    echo "Error: Missing file $META_PLATE or $PROTOBUF_PLATE"
+    echo "       Please download."
+    echo "       Or run ./alpr --setup to download."
+    exit
+fi
+if [ ! -f $META_CHARACTER ] || [ ! -f $PROTOBUF_CHARACTER ]; then
+    echo "Error: Missing file $META_CHARACTER or $PROTOBUF_CHARACTER"
+    echo "       Please download."
+    echo "       Or run ./alpr --setup to download."
+    exit
+fi
 python3 $PROG $WORKSPACE $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN $GPU
