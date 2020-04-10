@@ -3,11 +3,13 @@ Author: Nguyen Huynh Dang Khoa - Victor Nguyen
 January-February 2020  
 Major: Embedded System - Computer Science  
 University: Danang University of Sciences and Technology  
+## Special thank to TheophileBuy
+- Firstly I want to thank you [TheophileBuy](https://github.com/TheophileBuy) so much that I use his prototype as the core part of my project. The idea is here [Idea](https://medium.com/@theophilebuyssens/license-plate-recognition-using-opencv-yolo-and-keras-f5bfe03afc65) 
+- Basically we use OpenCV and YOLO to recognize the character on license plates, I try to modify to my our version and easier to use. If your want to train your own model, you should try his projects.  
+# Thank you TheophileBuy.
 
 ## About
-This is my project in Artificial Intelligence cource at my school. Basically, user input a photo  
-of the license plate and it will ouput the number on it. This project is based on many resources   
-and references. I hope you like it.
+This is my project in Artificial Intelligence cource at my school. Basically, user input a photo of the license plate and it will ouput the number on it. This project is based on many resources and references. I hope you like it.
 ## How to install ?
 - First make sure that you have python > 3.0, darkflow, tensorflow==1.14.0, numpy, imutils, and other dependency in python that we need in this project. See more in the documents/ directory.  
 - Clone this directory by: git clone  
