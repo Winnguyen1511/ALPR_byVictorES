@@ -12,3 +12,4 @@ and references. I hope you like it.
 - First make sure that you have python > 3.0, darkflow, tensorflow==1.14.0, numpy, imutils, and other dependency in python that we need in this project. See more in the documents/ directory.  
 - Clone this directory by: git clone  
 - After cloning this directory, you will need to download the database of this project, the database is the trained model that I trained for you first. You can actually modify the model if you want. Remember to place the database directory like this:
+![database_image](database_setting.png)
