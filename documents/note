@@ -1,0 +1,24 @@
+Cat bien so(CNN)
+Cat character(CNN vs OpenCV)
+nhan dien character(CNN) convolution neural network
+
+
+
+1)testing:
+1 file data of 100 images.
+test accuracy of model.
+
+Cnn:   40%.
+openCv:45%
+
+2)optimizing:
+80%
+- train again: increase dataset
+
+200 images
+
+150 train-> software
+50 test-> hand
+
+Dev: auto scale -> 400-550
+	
