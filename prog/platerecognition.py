@@ -12,6 +12,8 @@ import timeit
 import time
 import os
 
+from progress.bar import IncrementalBar
+
 MIN_WIDTH = 300
 MIN_HEIGHT = 80
 
@@ -40,7 +42,37 @@ def sysInit(platePb, plateMeta, charPb, charMeta,charCnn, gpu):
 
     return yoloPlate, yoloCharacter, characterRecognition
 
-def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
+def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
+    print(">> Testing mode:")
+
+    testList = {}
+    file = open(testfile, 'r')
+    line =file.readline()
+    while line and line != '\n':
+        entry = line.split(" ")
+        tmp = {entry[0]: entry[1].strip('\n')}
+        testList.update(tmp)
+        line =file.readline()
+    # print(testList)
+    total = len(testList)
+    countCNN = 0
+    countOpenCV = 0
+    bar = IncrementalBar('Tesing', max=total)
+    for key in testList.keys():
+        resMan = testList[key]
+        _,resCNN, resOpenCV = plateRecog(key,yoloPlate, yoloCharacter, characterRecognition, show=False)
+        if resCNN == resMan:
+            countCNN += 1
+        if resOpenCV == resMan:
+            countOpenCV += 1
+        bar.next()
+    bar.finish()
+    print(">> Testing Finished!")
+    print("> CNN: %.2f %%" %(countCNN*100/total))
+    print("> OpenCV: %.2f %%"%(countOpenCV*100/total))
+
+
+def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True):
     #Init the recognition configuration:
     
     #Start:
@@ -64,7 +96,8 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
     imsize = im.shape
     w = imsize[1]
     h = imsize[0]
-    print(">>Origin: Width: ", w, ", Height: ", h)
+    if(show== True):
+        print(">>Origin: Width: ", w, ", Height: ", h)
     if w < MIN_WIDTH or h < MIN_HEIGHT:
         w_scale = math.ceil(MIN_WIDTH / w)
         h_scale = math.ceil(MIN_HEIGHT / h)
@@ -77,20 +110,21 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
         scale = min(w_scale, h_scale)
         w = math.floor(w / scale)
         h = math.floor(h / scale)
-    print(">>Scale up: Width: ", w, ", Height: ", h)
+    if show == True:
+        print(">>Scale up: Width: ", w, ", Height: ", h)
     im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
     imcv = im.copy()
     #Character Segmentation by YOLO:
     charPrediction = yoloCharacter.return_predict(im)
     #character detection:
-    result = rm.yoloCharDetection(charPrediction, im, characterRecognition)
-    print(">>Plate number CNN: ", result)
+    resultCNN = rm.yoloCharDetection(charPrediction, im, characterRecognition, show=show) 
     
-    # print(result)
-    result = rm.opencvReadPlate(imcv, characterRecognition)
-    print(">>Plate number OpenCV: ", result)
+    resultOpenCV = rm.opencvReadPlate(imcv, characterRecognition, show=show)
+    if show == True:
+        print(">>Plate number CNN: ", resultCNN)
+        print(">>Plate number OpenCV: ", resultOpenCV)
     
-    return True
+    return True, resultCNN, resultOpenCV
 
 
 def main():
@@ -103,7 +137,8 @@ def main():
     parser.add_argument("charMeta")
     parser.add_argument("charCnn")
     parser.add_argument("gpuMode")
-
+    parser.add_argument("testmode")
+    parser.add_argument("testfile")
     args = parser.parse_args()
     workspace = args.workspace
     os.chdir(workspace)
@@ -117,6 +152,9 @@ def main():
     charCnnDir = args.charCnn
 
     gpuMode = float(args.gpuMode)
+
+    testmode = args.testmode
+    testfile =args.testfile
     #Start to run the program:
     yoloPlate, yoloCharacter, characterRecognition = sysInit(platePbDir, plateMetaDir,
                 charPbDir, charMetaDir, charCnnDir, gpuMode)
@@ -131,21 +169,31 @@ def main():
     print("*****PLATE RECOGNITION*****")
     print("> Workspace: ",workspace)
     print("> GPU mode: ", gpuMode * 100,"%")
-    while(True):
-        print("Please enter the image (0 or q to exit)")
-        image = input("> Input image: ")
-        if(image == '0' or image == 'q'):
-            break  
-        # image = workspace + image 
-        start = timeit.default_timer()
-        res = plateRecog(image, yoloPlate, yoloCharacter, characterRecognition)
-        stop = timeit.default_timer()
-        print("Runtime: ", stop - start)
-        if(res == True):
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            print("******************************")
-        
-    print(">>> Exiting...")
+    if(testmode == 'normal'):
+        while(True):
+            print("Please enter the image (0 or q to exit)")
+            image = input("> Input image: ")
+            if(image == '0' or image == 'q'):
+                break 
+            # image = workspace + image 
+            start = timeit.default_timer()
+            res, _, _ = plateRecog(image, yoloPlate, yoloCharacter, characterRecognition)
+            stop = timeit.default_timer()
+            print("Runtime: ", stop - start)
+            if(res == True):
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+                print("******************************") 
+        print(">>> Exiting...")
+    elif testmode == 'test':
+        if(testfile != ''):
+            if(os.path.isfile(testfile) == False):
+                print("Error: no such file or directory!")
+            else:
+                plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile)
+    else:
+        print("Error: Wrong operation mode!")
+    
+    
 main()
 

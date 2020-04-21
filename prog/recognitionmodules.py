@@ -46,7 +46,7 @@ def auto_canny(image, sigma=0.33):
     # return the edged image
     return edged
 
-def opencvReadPlate(img, characterRecognition):
+def opencvReadPlate(img, characterRecognition, show=True):
     charList=[]
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     thresh_inv = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
@@ -65,7 +65,8 @@ def opencvReadPlate(img, characterRecognition):
                 char = img[y:y+h,x:x+w]
                 charList.append(cnnCharRecognition(char, characterRecognition))
                 cv2.rectangle(img,(x,y),( x + w, y + h ),(90,0,255),2)
-    cv2.imshow('OpenCV character segmentation',img)
+    if(show == True):
+        cv2.imshow('OpenCV character segmentation',img)
     licensePlate="".join(charList)
     return licensePlate
 
@@ -83,7 +84,7 @@ def cnnCharRecognition(img,characterRecognition):
     char = np.argmax(new_predictions)
     return dictionary[char]
 
-def yoloCharDetection(predictions,img, charRecognition):
+def yoloCharDetection(predictions,img, charRecognition,show=True):
     charList = []
     positions = []
     for i in predictions:
@@ -96,8 +97,8 @@ def yoloCharDetection(predictions,img, charRecognition):
             char = img[ytop:ybottom, xtop:xbottom]
             cv2.rectangle(img,(xtop,ytop),( xbottom, ybottom ),(255,0,0),2)
             charList.append(cnnCharRecognition(char, charRecognition))
-
-    cv2.imshow('Yolo character segmentation',img)
+    if(show == True):
+        cv2.imshow('Yolo character segmentation',img)
     sortedList = [x for _,x in sorted(zip(positions,charList))]
     licensePlate="".join(sortedList)
     return licensePlate

@@ -17,8 +17,8 @@ UTILS_DIR=$THIS_DIR/"utils/"
 DATABASE_DIR=$THIS_DIR/"database/"
 META_DIR=$DATABASE_DIR"meta/"
 PROTOBUF_DIR=$DATABASE_DIR"protobuf/"
-
-
+MODE="normal"
+TESTFILE=""
 
 META_PLATE=$META_DIR"yolo-plate.meta"
 META_CHARACTER=$META_DIR"yolo-character.meta"
@@ -44,6 +44,7 @@ helpFunction()
     echo "Usage: ./alpr --setup"
     echo "Usage: ./alpr --rename"
     echo "Usage: ./alpr --testmaker [test directory]"
+    echo "Usage: ./alpr --test [test file]"
 }
 
 setupFunction()
@@ -104,6 +105,11 @@ if [ "$1" == "--testmaker" ];then
     testMakerFunction $2
     exit
 fi
+
+if [ "$1" == "--test" ];then 
+    MODE="test"
+    TESTFILE=$2
+fi
 while [ -n "$1" ]; do
     case "$1" in
     -f) echo "Changing workspace..."
@@ -157,4 +163,5 @@ if [ ! -f $META_CHARACTER ] || [ ! -f $PROTOBUF_CHARACTER ]; then
     echo "       Or run ./alpr --setup to download."
     exit
 fi
-python3 $PROG $WORKSPACE $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN $GPU
+
+python3 $PROG $WORKSPACE $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN $GPU $MODE $TESTFILE
