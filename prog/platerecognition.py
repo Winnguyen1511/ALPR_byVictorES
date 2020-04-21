@@ -15,6 +15,8 @@ import os
 MIN_WIDTH = 300
 MIN_HEIGHT = 80
 
+MAX_WIDTH = 600
+MAX_HEIGHT = 160
 # dir = '/home/khoa/AI_DeepLearning/LicensePlateRecognition/LicensePlateRecognition/'
 # # imageDir = dir+'resources/'
 
@@ -69,6 +71,12 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
         scale = max(w_scale, h_scale)
         w = w * scale
         h = h * scale
+    if w > MAX_WIDTH or h > MAX_HEIGHT:
+        w_scale = math.ceil(w / MAX_WIDTH)
+        h_scale = math.ceil(h / MAX_HEIGHT)
+        scale = min(w_scale, h_scale)
+        w = w / scale
+        h = h / scale
     print(">>Scale up: Width: ", w, ", Height: ", h)
     im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
     imcv = im.copy()
