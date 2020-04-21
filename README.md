@@ -1,5 +1,7 @@
 # Automatic License Plate Recognition by VictorES
-Author: Nguyen Huynh Dang Khoa - Victor Nguyen  
+Author: Nguyen Huynh Dang Khoa (aka Victor Nguyen)  
+My partner: Eng. Nguyen Thi Minh Hien  
+
 January-February 2020  
 Major: Embedded System - Computer Science  
 University: Danang University of Sciences and Technology  
