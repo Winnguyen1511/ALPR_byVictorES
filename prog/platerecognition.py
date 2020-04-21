@@ -75,8 +75,8 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition):
         w_scale = math.ceil(w / MAX_WIDTH)
         h_scale = math.ceil(h / MAX_HEIGHT)
         scale = min(w_scale, h_scale)
-        w = w / scale
-        h = h / scale
+        w = math.floor(w / scale)
+        h = math.floor(h / scale)
     print(">>Scale up: Width: ", w, ", Height: ", h)
     im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
     imcv = im.copy()
