@@ -13,7 +13,7 @@ THIS_DIR=$PWD
 RESOURCE_DIR=$THIS_DIR/"resources/"
 WORKSPACE=$THIS_DIR/"resources/"
 SETUP=$THIS_DIR/"setup"
-
+UTILS_DIR=$THIS_DIR/"utils/"
 DATABASE_DIR=$THIS_DIR/"database/"
 META_DIR=$DATABASE_DIR"meta/"
 PROTOBUF_DIR=$DATABASE_DIR"protobuf/"
@@ -29,7 +29,10 @@ PROTOBUF_CHARACTER=$PROTOBUF_DIR"yolo-character.pb"
 CNN=$DATABASE_DIR"character_recognition.h5"
 
 PROG=$THIS_DIR/"prog/platerecognition.py"
+RENAME=$UTILS_DIR"rename.py"
 GPU="0.9"
+
+
 
 helpFunction()
 {
@@ -37,6 +40,7 @@ helpFunction()
     echo "Usage: ./alpr -f [full_path_workspace] -g [gpu-usage]"
     echo "Usage: ./alpr --clear"
     echo "Usage: ./alpr --setup"
+    echo "Usage: ./alpr --rename"
 }
 
 setupFunction()
@@ -61,6 +65,13 @@ clearFunction()
     rm -rf $DATABASE_DIR
     rm -rf $SETUP/".credentials"
 }
+renameFunction()
+{
+    echo "Rename in ascending order: "
+    echo $1
+    python3 $RENAME $1
+}
+
 
 if [ "$1" == "--help" ]; then
     helpFunction
@@ -75,6 +86,12 @@ if [ "$1" == "--clear" ]; then
     clearFunction
     exit
 fi
+
+if [ "$1" == "--rename" ];then    
+    renameFunction $2
+    exit
+fi
+
 
 while [ -n "$1" ]; do
     case "$1" in
