@@ -30,6 +30,8 @@ CNN=$DATABASE_DIR"character_recognition.h5"
 
 PROG=$THIS_DIR/"prog/platerecognition.py"
 RENAME=$UTILS_DIR"rename.py"
+TESTMAKER=$UTILS_DIR"testingDataMaker.py"
+
 GPU="0.9"
 
 
@@ -41,6 +43,7 @@ helpFunction()
     echo "Usage: ./alpr --clear"
     echo "Usage: ./alpr --setup"
     echo "Usage: ./alpr --rename"
+    echo "Usage: ./alpr --testmaker [test directory]"
 }
 
 setupFunction()
@@ -72,6 +75,11 @@ renameFunction()
     python3 $RENAME $1
 }
 
+testMakerFunction()
+{
+    echo "TestMaker:"
+    python3 $TESTMAKER $1
+}
 
 if [ "$1" == "--help" ]; then
     helpFunction
@@ -92,7 +100,10 @@ if [ "$1" == "--rename" ];then
     exit
 fi
 
-
+if [ "$1" == "--testmaker" ];then    
+    testMakerFunction $2
+    exit
+fi
 while [ -n "$1" ]; do
     case "$1" in
     -f) echo "Changing workspace..."

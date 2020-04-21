@@ -2,7 +2,7 @@ import cv2
 import os
 import argparse
 import threading
-from functools import cmp_to_key
+
 
 defaultdatafile = 'data'
 #listData: all image name in here:
