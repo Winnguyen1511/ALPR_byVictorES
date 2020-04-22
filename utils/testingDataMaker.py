@@ -2,8 +2,12 @@ import cv2
 import os
 import argparse
 import threading
+import math
+MIN_WIDTH = 300
+MIN_HEIGHT = 80
 
-
+MAX_WIDTH = 600
+MAX_HEIGHT = 160
 defaultdatafile = 'data'
 #listData: all image name in here:
 listData = []
@@ -24,6 +28,24 @@ def extFilter(filepath):
 def cmp_items(a):
     return int(a.split('.')[0])
 def imshow(filename, im):
+    imsize = im.shape
+    w = imsize[1]
+    h = imsize[0]
+
+    print(">>Origin: Width: ", w, ", Height: ", h)
+    if w < MIN_WIDTH or h < MIN_HEIGHT:
+        w_scale = math.ceil(MIN_WIDTH / w)
+        h_scale = math.ceil(MIN_HEIGHT / h)
+        scale = max(w_scale, h_scale)
+        w = w * scale
+        h = h * scale
+    if w > MAX_WIDTH or h > MAX_HEIGHT:
+        w_scale = math.ceil(w / MAX_WIDTH)
+        h_scale = math.ceil(h / MAX_HEIGHT)
+        scale = min(w_scale, h_scale)
+        w = math.floor(w / scale)
+        h = math.floor(h / scale)
+    im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
     cv2.namedWindow(filename, cv2.WINDOW_AUTOSIZE)
     cv2.imshow(filename,im)
     cv2.waitKey(0)
