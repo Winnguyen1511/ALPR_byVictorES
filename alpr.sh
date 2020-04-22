@@ -18,7 +18,7 @@ DATABASE_DIR=$THIS_DIR/"database/"
 META_DIR=$DATABASE_DIR"meta/"
 PROTOBUF_DIR=$DATABASE_DIR"protobuf/"
 MODE="normal"
-TESTFILE=""
+TESTFILE="_"
 
 META_PLATE=$META_DIR"yolo-plate.meta"
 META_CHARACTER=$META_DIR"yolo-character.meta"

@@ -11,6 +11,7 @@ import recognitionmodules as rm
 import timeit
 import time
 import os
+import datetime
 
 from progress.bar import IncrementalBar
 
@@ -58,6 +59,10 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
     countCNN = 0
     countOpenCV = 0
     bar = IncrementalBar('Tesing', max=total)
+    t = datetime.datetime.now()
+    logname = 'log'+t.strftime("%y_%m_%d_%H%M%S")
+    logfile = open(logname, 'w')
+
     for key in testList.keys():
         resMan = testList[key]
         _,resCNN, resOpenCV = plateRecog(key,yoloPlate, yoloCharacter, characterRecognition, show=False)
@@ -65,8 +70,11 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
             countCNN += 1
         if resOpenCV == resMan:
             countOpenCV += 1
+        tmp = key+' man:'+resMan+' cnn:'+resCNN+' opencv:'+resOpenCV+'\n'
+        logfile.write(tmp)
         bar.next()
     bar.finish()
+    logfile.close()
     print(">> Testing Finished!")
     print("> CNN: %.2f %%" %(countCNN*100/total))
     print("> OpenCV: %.2f %%"%(countOpenCV*100/total))
