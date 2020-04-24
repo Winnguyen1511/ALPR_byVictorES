@@ -12,11 +12,13 @@ ALPR_DATA="ALPR_Data"
 ALPR_DATAMAKE="ALPR_DataMake"
 ALPR_TRAINING="ALPR_Training"
 ALPR_BYVICTORES="ALPR_byVictorES"
+PROJECT_LINK="https://drive.google.com/drive/folders/1XBog2PVaCbO583t-Wqc_nrjqSu7gNJID?usp=sharing"
+
 
 THIS_DIR=$PWD
 
 RESOURCE_DIR=$THIS_DIR/"resources/"
-WORKSPACE=$THIS_DIR/"resources/"
+WORKSPACE=$THIS_DIR/"resources/standard/"
 SETUP=$THIS_DIR/"setup"
 UTILS_DIR=$THIS_DIR/"utils/"
 DATABASE_DIR=$THIS_DIR/"database/"
@@ -65,7 +67,8 @@ setupGlobalFunction()
         mkdir $PROTOBUF_DIR
         mkdir $META_DIR
     fi
-    ./setup.sh $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN
+    # ./setup.sh $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN
+    ./setup.sh $THIS_DIR $THIS_DIR
 }
 setupLocal()
 {
@@ -73,6 +76,9 @@ setupLocal()
     cd ..
     if [ ! -d $ALPR_DATA ]; then
         echo "Error: Missing directory $ALPR_DATA"
+        echo "Please go to the following website to download the database and resources"
+        echo "$PROJECT_LINK"
+        echo "Thank you!"
         exit
     else
         cp -rf $ALPR_DATA/"database" $ALPR_BYVICTORES
@@ -82,7 +88,7 @@ setupLocal()
 setupFunction()
 {
     echo "setup..."
-    if [ "$2" == "global" ];then
+    if [ "$1" == "global" ];then
         setupGlobalFunction
     else
         setupLocal
@@ -116,12 +122,12 @@ if [ "$1" == "--help" ]; then
     exit
 fi
 if [ "$1" == "--setup" ]; then
-    setupFunction
+    setupFunction $2
     exit
 fi
 
 if [ "$1" == "--clear" ]; then
-    clearFunction
+    clearFunction 
     exit
 fi
 
@@ -137,7 +143,8 @@ fi
 
 if [ "$1" == "--test" ];then 
     MODE="test"
-    TESTFILE=$2
+    WORKSPACE=$2
+    TESTFILE=$3
 fi
 while [ -n "$1" ]; do
     case "$1" in
