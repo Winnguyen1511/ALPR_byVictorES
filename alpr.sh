@@ -49,7 +49,7 @@ helpFunction()
     echo "Usage: ./alpr -f [full_path_workspace] -g [gpu-usage]"
     echo "Usage: ./alpr --clear"
     echo "Usage: ./alpr --setup [global]"
-    echo "Usage: ./alpr --rename"
+    echo "Usage: ./alpr --rename [directory to rename]"
     echo "Usage: ./alpr --testmaker [test directory]"
     echo "Usage: ./alpr --test [test directory] [test file]"
 }
