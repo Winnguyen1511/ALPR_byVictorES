@@ -22,7 +22,8 @@ This is my project in Artificial Intelligence cource at my school. Basically, us
 - I highly recommend you try my prototype database before going to train you own model at: [database](https://drive.google.com/drive/folders/1bmnd39-tHje1BAu_Dkwxe0WCu3RFsOC7?usp=sharing).  
 - The yolo-plate.meta and yolo-plate.pb is for the plate detection. It is used to crop out the plate in the picture.
 - Similarly the yolo-character.meta and yolo-character.pb is for character segmentations.  
-- You can see the character_recognition.h5 is the model from CNN network to recognize the character after segmentation.  
+- You can see the character_recognition.h5 is the model from CNN network to recognize the character after segmentation. 
+- Now you have a directory of images, you should name it 'resources/'. Place all your photo here.  
 - After doing this, you ready to Go.
 
 ## How to use ?
