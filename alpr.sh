@@ -8,6 +8,11 @@
 #              
 #*****************************************  
 
+ALPR_DATA="ALPR_Data"
+ALPR_DATAMAKE="ALPR_DataMake"
+ALPR_TRAINING="ALPR_Training"
+ALPR_BYVICTORES="ALPR_byVictorES"
+
 THIS_DIR=$PWD
 
 RESOURCE_DIR=$THIS_DIR/"resources/"
@@ -41,15 +46,15 @@ helpFunction()
     echo "Usage: ./alpr "
     echo "Usage: ./alpr -f [full_path_workspace] -g [gpu-usage]"
     echo "Usage: ./alpr --clear"
-    echo "Usage: ./alpr --setup"
+    echo "Usage: ./alpr --setup [global]"
     echo "Usage: ./alpr --rename"
     echo "Usage: ./alpr --testmaker [test directory]"
-    echo "Usage: ./alpr --test [test file]"
+    echo "Usage: ./alpr --test [test directory] [test file]"
 }
 
-setupFunction()
+setupGlobalFunction()
 {
-    echo "setup..."
+    echo "setup global..."
     if [ ! -d $DATABASE_DIR ]; then
         mkdir $DATABASE_DIR
         mkdir $PROTOBUF_DIR
@@ -62,11 +67,35 @@ setupFunction()
     fi
     ./setup.sh $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN
 }
+setupLocal()
+{
+    echo "setup local..."
+    cd ..
+    if [ ! -d $ALPR_DATA ]; then
+        echo "Error: Missing directory $ALPR_DATA"
+        exit
+    else
+        cp -rf $ALPR_DATA/"database" $ALPR_BYVICTORES
+        cp -rf $ALPR_DATA/"resources" $ALPR_BYVICTORES
+    fi
+}
+setupFunction()
+{
+    echo "setup..."
+    if [ "$2" == "global" ];then
+        setupGlobalFunction
+    else
+        setupLocal
+    fi
+
+}
 
 clearFunction()
 {
     echo "Clearing database and credentials..."
+    echo "Clearing resources..."
     rm -rf $DATABASE_DIR
+    rm -rf $RESOURCE_DIR
     rm -rf $SETUP/".credentials"
 }
 renameFunction()
