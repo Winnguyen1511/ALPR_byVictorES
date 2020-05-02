@@ -15,11 +15,20 @@ import datetime
 
 from progress.bar import IncrementalBar
 
-MIN_WIDTH = 460
-MIN_HEIGHT = 100
+#Old database
+MIN_WIDTH = 400
+MIN_HEIGHT = 220
 
-MAX_WIDTH = 1200
-MAX_HEIGHT = 290
+MAX_WIDTH = 2100
+MAX_HEIGHT = 1000
+
+
+# #New Database
+# MIN_WIDTH = 460
+# MIN_HEIGHT = 100
+
+# MAX_WIDTH = 1200
+# MAX_HEIGHT = 290
 # dir = '/home/khoa/AI_DeepLearning/LicensePlateRecognition/LicensePlateRecognition/'
 # # imageDir = dir+'resources/'
 
@@ -198,7 +207,10 @@ def main():
             if(os.path.isfile(testfile) == False):
                 print("Error: no such file or directory!")
             else:
+                start = timeit.default_timer()
                 plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile)
+                stop = timeit.default_timer()
+                print("Runtime: ", stop - start)
     else:
         print("Error: Wrong operation mode!")
     
