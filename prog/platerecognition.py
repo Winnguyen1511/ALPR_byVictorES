@@ -15,11 +15,11 @@ import datetime
 
 from progress.bar import IncrementalBar
 
-MIN_WIDTH = 300
-MIN_HEIGHT = 80
+MIN_WIDTH = 460
+MIN_HEIGHT = 100
 
-MAX_WIDTH = 600
-MAX_HEIGHT = 160
+MAX_WIDTH = 1200
+MAX_HEIGHT = 290
 # dir = '/home/khoa/AI_DeepLearning/LicensePlateRecognition/LicensePlateRecognition/'
 # # imageDir = dir+'resources/'
 

@@ -76,7 +76,7 @@ def cnnCharRecognition(img,characterRecognition):
     21:'L', 22:'M', 23:'N', 24:'P', 25:'Q', 26:'R', 27:'S', 28:'T', 29:'U',
     30:'V', 31:'W', 32:'X', 33:'Y', 34:'Z'}
 
-    blackAndWhiteChar=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blackAndWhiteChar=cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     blackAndWhiteChar = cv2.resize(blackAndWhiteChar,(75,100))
     image = blackAndWhiteChar.reshape((1, 100,75, 1))
     image = image / 255.0
