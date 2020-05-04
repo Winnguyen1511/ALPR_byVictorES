@@ -47,6 +47,7 @@ def rgbtogray(rgb_dir, gray_dir):
         grayPath = orgPath.replace(rgb_dir, gray_dir)
         im = cv2.imread(orgPath)
         imGray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        # print(imGray.shape)
         cv2.imwrite(grayPath, imGray)
     print("Complete converting %d images to gray"%i)
     
