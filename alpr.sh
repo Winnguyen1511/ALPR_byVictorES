@@ -18,7 +18,7 @@ PROJECT_LINK="https://drive.google.com/drive/folders/1XBog2PVaCbO583t-Wqc_nrjqSu
 THIS_DIR=$PWD
 
 RESOURCE_DIR=$THIS_DIR/"resources/"
-WORKSPACE=$THIS_DIR/"resources/standard/"
+WORKSPACE=$THIS_DIR/"resources/"
 SETUP=$THIS_DIR/"setup"
 UTILS_DIR=$THIS_DIR/"utils/"
 DATABASE_DIR=$THIS_DIR/"database/"
