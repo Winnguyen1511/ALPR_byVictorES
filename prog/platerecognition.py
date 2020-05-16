@@ -78,7 +78,8 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
     countCNN = 0
     countOpenCV = 0
     #Stat for character recognition:
-    countLenCNN = 0; countLenOpenCV = 0
+    countSegmentedCNN = 0; countSegmentedOpenCV = 0
+    countSuccessCharCNN = 0; countSuccessCharOpenCV = 0
     #Stat for character segmentation:
     countSegCNN = 0; countSegOpenCV = 0
 
@@ -94,17 +95,19 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
             countCNN += 1
         if(len(resCNN) == len(resMan)):
             countSegCNN +=1
+            countSegmentedCNN += len(resMan)
             for i in range(0,len(resCNN)):
                 if resCNN[i] == resMan[i]: 
-                    countLenCNN += 1
+                    countSuccessCharCNN += 1
 
         if resOpenCV == resMan:
             countOpenCV += 1
         if(len(resOpenCV) == len(resMan)):
             countSegOpenCV += 1
+            countSegmentedOpenCV += len(resMan)
             for i in range(0,len(resOpenCV)):
                 if resOpenCV[i] == resMan[i]:
-                    countLenOpenCV += 1
+                    countSuccessCharOpenCV += 1
         tmp = key+' man:'+resMan+' cnn:'+resCNN+' opencv:'+resOpenCV+'\n'
         logfile.write(tmp)
         bar.next()
@@ -119,8 +122,8 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
     print("CNN: %.2f %%"%(countSegCNN*100/total))
     print("OpenCV:%.2f %%"%(countSegOpenCV*100/total))
     print("> Character recognition: ")
-    print("CNN: %.2f %%"%(countLenCNN*100/totalLen))
-    print("OpenCV:%.2f %%"%(countLenOpenCV*100/totalLen))
+    print("CNN: %.2f %%"%(countSuccessCharCNN*100/countSegmentedCNN))
+    print("OpenCV:%.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
 
 
 def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True):

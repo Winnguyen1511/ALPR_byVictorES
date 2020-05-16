@@ -27,7 +27,7 @@ def firstCrop(img, predictions):
 def secondCrop(img):
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     ret,thresh = cv2.threshold(gray,127,255,0)
-    contours,_ = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    contours,_ = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_TC89_L1)
     areas = [cv2.contourArea(c) for c in contours]
     if(len(areas)!=0):
         max_index = np.argmax(areas)
@@ -51,25 +51,82 @@ def auto_canny(image, sigma=0.33):
     # return the edged image
     return edged
 
+# def opencvReadPlate(img, characterRecognition, show=True):
+#     charList=[]
+#     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+#     thresh_inv = cv2.adaptiveThreshold(gray,200,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
+#     # edges = auto_canny(thresh_inv, sigma=0.1)
+#     edges = thresh_inv
+#     ctrs, _ = cv2.findContours(edges.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+#     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+#     img_area = img.shape[0]*img.shape[1]
+
+#     for i, ctr in enumerate(sorted_ctrs):
+#         x, y, w, h = cv2.boundingRect(ctr)
+#         roi_area = w*h
+#         non_max_sup = roi_area/img_area
+
+#         if((non_max_sup >= 0.015) and (non_max_sup < 0.09)):
+#             # if ((h>1.2*w) and (3*w>=h)):
+#             if(h > w):
+#                 char = img[y:y+h,x:x+w]
+#                 charList.append(cnnCharRecognition(char, characterRecognition))
+#                 cv2.rectangle(img,(x,y),( x + w, y + h ),(90,0,255),2)
+#     if(show == True):
+#         tmpImg = img.copy()
+#         imsize = tmpImg.shape
+#         w = imsize[1]
+#         h = imsize[0]
+#         if w < MIN_WIDTH or h < MIN_HEIGHT:
+#             w_scale = math.ceil(MIN_WIDTH / w)
+#             h_scale = math.ceil(MIN_HEIGHT / h)
+#             scale = max(w_scale, h_scale)
+#             w = w * scale
+#             h = h * scale
+#         if w > MAX_WIDTH or h > MAX_HEIGHT:
+#             w_scale = math.ceil(w / MAX_WIDTH)
+#             h_scale = math.ceil(h / MAX_HEIGHT)
+#             scale = min(w_scale, h_scale)
+#             w = math.floor(w / scale)
+#             h = math.floor(h / scale)
+#         tmpImg = cv2.resize(tmpImg, (w, h), interpolation=cv2.INTER_CUBIC)
+#         cv2.imshow('OpenCV character segmentation',tmpImg)
+#     licensePlate="".join(charList)
+#     return licensePlate
+
 def opencvReadPlate(img, characterRecognition, show=True):
     charList=[]
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     thresh_inv = cv2.adaptiveThreshold(gray,200,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
-    edges = auto_canny(thresh_inv, sigma=0.1)
-    ctrs, _ = cv2.findContours(edges.copy(), cv2.CCL_GRANA, cv2.CHAIN_APPROX_TC89_L1)
-    sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+    # edges = auto_canny(thresh_inv, sigma=0.1)
+    edges = thresh_inv
+    ctrs, hier = cv2.findContours(edges.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+    # sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
     img_area = img.shape[0]*img.shape[1]
 
-    for i, ctr in enumerate(sorted_ctrs):
+    index_chosen_lst = []
+    chosen_lst = []
+    for i, ctr in enumerate(ctrs):
         x, y, w, h = cv2.boundingRect(ctr)
         roi_area = w*h
         non_max_sup = roi_area/img_area
 
-        if((non_max_sup >= 0.03) and (non_max_sup < 0.09)):
-            if ((h>1.2*w) and (3*w>=h)):
-                char = img[y:y+h,x:x+w]
-                charList.append(cnnCharRecognition(char, characterRecognition))
-                cv2.rectangle(img,(x,y),( x + w, y + h ),(90,0,255),2)
+        if((non_max_sup >= 0.02) and (non_max_sup < 0.09)):
+            # if ((h>1.2*w) and (3*w>=h)):
+            if(h > w):
+                # char = img[y:y+h,x:x+w]
+                # charList.append(cnnCharRecognition(char, characterRecognition))
+                # cv2.rectangle(img,(x,y),( x + w, y + h ),(90,0,255),2)
+                index_chosen_lst.append(i)
+                tmp = [cv2.boundingRect(ctr), list(hier[0][i])]
+                chosen_lst.append(tmp)
+    chosen_lst = filter(lambda query: query[1][3] not in index_chosen_lst, chosen_lst)
+    chosen_lst = sorted(chosen_lst, key=lambda query: query[0][0])
+    for i in range(0,len(chosen_lst)):
+        x, y, w, h = chosen_lst[i][0]
+        char = img[y:y+h,x:x+w]
+        charList.append(cnnCharRecognition(char,characterRecognition))
+        cv2.rectangle(img,(x,y), (x+w, y+h), (90,0,255),2)
     if(show == True):
         tmpImg = img.copy()
         imsize = tmpImg.shape
@@ -105,7 +162,11 @@ def cnnCharRecognition(img,characterRecognition):
     image = np.array(blackAndWhiteChar.reshape(1,100,75, 1))
     image = image / 255.0
     new_predictions = characterRecognition.predict(image)
+    
     char = np.argmax(new_predictions)
+    # print("> Char=", dictionary[char])
+    # prob = np.amax(new_predictions)
+    # print("> Prob=%.3f"%(prob))
     return dictionary[char]
 
 def yoloCharDetection(predictions,img, charRecognition,show=True):
