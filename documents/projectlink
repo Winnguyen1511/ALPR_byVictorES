@@ -8,6 +8,10 @@ _Tools, workspace: https://drive.google.com/drive/u/2/folders/1NQR5PGyw3U6pC1B63
 	+darkflow
 	+LabelImg
 
-
-
+_Canny Edge detection: https://en.wikipedia.org/wiki/Canny_edge_detector
+			ComputerphileL: https://www.youtube.com/watch?v=sRFM5IEqR2w
+			Sobel operation: https://en.wikipedia.org/wiki/Sobel_operator
+			Hyteresis: https://en.wikipedia.org/wiki/Hysteresis
+OpenCV Canny: https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
+OpenCV FindContour		https://docs.opencv.org/trunk/d3/dc0/group__imgproc__shape.html#ga819779b9857cc2f8601e6526a3a5bc71
 

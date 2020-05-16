@@ -27,7 +27,7 @@ def firstCrop(img, predictions):
 def secondCrop(img):
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     ret,thresh = cv2.threshold(gray,127,255,0)
-    _, contours,_ = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    contours,_ = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     areas = [cv2.contourArea(c) for c in contours]
     if(len(areas)!=0):
         max_index = np.argmax(areas)
@@ -54,9 +54,9 @@ def auto_canny(image, sigma=0.33):
 def opencvReadPlate(img, characterRecognition, show=True):
     charList=[]
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    thresh_inv = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
-    edges = auto_canny(thresh_inv)
-    _, ctrs, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    thresh_inv = cv2.adaptiveThreshold(gray,200,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
+    edges = auto_canny(thresh_inv, sigma=0.1)
+    ctrs, _ = cv2.findContours(edges.copy(), cv2.CCL_GRANA, cv2.CHAIN_APPROX_TC89_L1)
     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
     img_area = img.shape[0]*img.shape[1]
 
@@ -65,7 +65,7 @@ def opencvReadPlate(img, characterRecognition, show=True):
         roi_area = w*h
         non_max_sup = roi_area/img_area
 
-        if((non_max_sup >= 0.015) and (non_max_sup < 0.09)):
+        if((non_max_sup >= 0.03) and (non_max_sup < 0.09)):
             if ((h>1.2*w) and (3*w>=h)):
                 char = img[y:y+h,x:x+w]
                 charList.append(cnnCharRecognition(char, characterRecognition))
