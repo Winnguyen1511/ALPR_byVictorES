@@ -46,9 +46,10 @@ def imshow(filename, im):
         w = math.floor(w / scale)
         h = math.floor(h / scale)
     im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
-    cv2.namedWindow(filename, cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow(filename, cv2.WINDOW_AUTOSIZE)
     cv2.imshow(filename,im)
     cv2.waitKey(0)
+    # return
 
 
 
@@ -144,7 +145,8 @@ def autoMode():
             testData.update(tmp)
             print("---------------------------------------------------")
         cv2.destroyWindow(filename)
-        # print(t.isAlive())
+        print(t.isAlive())
+        # t.terminate()
     cv2.destroyAllWindows()
     # print(testData)
     
@@ -187,6 +189,7 @@ def semiMode():
                     testData.update(tmp)
                     print("---------------------------------------------------")
                 cv2.destroyWindow(filename)
+                # cv2.destroyAllWindows()
             cv2.destroyAllWindows()
    
     return True

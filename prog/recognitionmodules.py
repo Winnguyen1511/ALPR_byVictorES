@@ -19,6 +19,8 @@ SECOND_CROP_HIGHLIM = 0.9
 SEGMENT_LOWLIM = 0.015
 SEGMENT_HIGHLIM = 0.09
 
+INVERT_LIM = 200
+
 def firstCrop(img, predictions):
     predictions.sort(key=lambda x: x.get('confidence'))
     xtop = predictions[-1].get('topleft').get('x')
@@ -32,9 +34,13 @@ def firstCrop(img, predictions):
 
 def secondCrop(img):
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    thresh =  cv2.adaptiveThreshold(gray,210,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
+    thresh =  cv2.adaptiveThreshold(gray,INVERT_LIM,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
     edges = auto_canny(thresh, sigma=0.1)
-    ctrs,_ = cv2.findContours(edges,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_TC89_L1)
+    cv_version = cv2.__version__
+    if cv_version == '4.2.0':
+        ctrs,_ = cv2.findContours(edges,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_TC89_L1)
+    elif cv_version == '3.2.0':
+        _,ctrs,_ = cv2.findContours(edges,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_TC89_L1)
     chosen_lst = []
     areas = []
     img_area = img.shape[0]*img.shape[1]
@@ -73,7 +79,11 @@ def auto_canny(image, sigma=0.33):
 
 def opencvReadPlate(img, characterRecognition, show=True):
     charList=[]
-    ctrs, hier = cv2.findContours(img.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+    cv_version = cv2.__version__
+    if cv_version == '4.2.0':
+        ctrs, hier = cv2.findContours(img.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
+    elif cv_version == '3.2.0':
+        _, ctrs, hier = cv2.findContours(img.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_L1)
     # sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
     img_area = img.shape[0]*img.shape[1]
 
