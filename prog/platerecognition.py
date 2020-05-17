@@ -122,9 +122,14 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
     print("CNN: %.2f %%"%(countSegCNN*100/total))
     print("OpenCV:%.2f %%"%(countSegOpenCV*100/total))
     print("> Character recognition: ")
-    print("CNN: %.2f %%"%(countSuccessCharCNN*100/countSegmentedCNN))
-    print("OpenCV:%.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
-
+    if countSegmentedCNN !=0:
+        print("CNN: %.2f %%"%(countSuccessCharCNN*100/countSegmentedCNN))
+    else:
+        print("CNN:0%")
+    if countSegmentedOpenCV !=0 :
+        print("OpenCV:%.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
+    else:
+        print("OpenCV:0%")
 
 def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True):
     #Init the recognition configuration:
@@ -139,6 +144,7 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True)
     platePrediction = yoloPlate.return_predict(im)
     # print(len(platePrediction))
     #Crop the plate out and second crop to reduce some background:
+    resultCNN = ""; resultOpenCV = ""
     if len(platePrediction) > 0:
         im = rm.firstCrop(im, platePrediction)
         # cv2.imwrite('test.jpg', im)
@@ -147,36 +153,37 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True)
     
     
     #resize the capture of plate before we detect the character:
-    imsize = im.shape
-    w = imsize[1]
-    h = imsize[0]
-    if(show== True):
-        print(">>Origin: Width: ", w, ", Height: ", h)
-    if w < MIN_WIDTH or h < MIN_HEIGHT:
-        w_scale = math.ceil(MIN_WIDTH / w)
-        h_scale = math.ceil(MIN_HEIGHT / h)
-        scale = max(w_scale, h_scale)
-        w = w * scale
-        h = h * scale
-    if w > MAX_WIDTH or h > MAX_HEIGHT:
-        w_scale = math.ceil(w / MAX_WIDTH)
-        h_scale = math.ceil(h / MAX_HEIGHT)
-        scale = min(w_scale, h_scale)
-        w = math.floor(w / scale)
-        h = math.floor(h / scale)
-    if show == True:
-        print(">>Scale up: Width: ", w, ", Height: ", h)
-    im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
-    imcv = im.copy()
-    #Character Segmentation by YOLO:
-    charPrediction = yoloCharacter.return_predict(im)
-    #character detection:
-    resultCNN = rm.yoloCharDetection(charPrediction, im, characterRecognition, show=show) 
-    
-    resultOpenCV = rm.opencvReadPlate(imcv, characterRecognition, show=show)
-    if show == True:
-        print(">>Plate number CNN: ", resultCNN)
-        print(">>Plate number OpenCV: ", resultOpenCV)
+        imsize = im.shape
+        w = imsize[1]
+        h = imsize[0]
+        if(show== True):
+            print(">>Origin: Width: ", w, ", Height: ", h)
+        if w < MIN_WIDTH or h < MIN_HEIGHT:
+            w_scale = math.ceil(MIN_WIDTH / w)
+            h_scale = math.ceil(MIN_HEIGHT / h)
+            scale = max(w_scale, h_scale)
+            w = w * scale
+            h = h * scale
+        if w > MAX_WIDTH or h > MAX_HEIGHT:
+            w_scale = math.ceil(w / MAX_WIDTH)
+            h_scale = math.ceil(h / MAX_HEIGHT)
+            scale = min(w_scale, h_scale)
+            w = math.floor(w / scale)
+            h = math.floor(h / scale)
+        if show == True:
+            print(">>Scale up: Width: ", w, ", Height: ", h)
+        im = cv2.resize(im, (w, h), interpolation=cv2.INTER_CUBIC)
+        # thresh =cv2.resize(thresh, (w, h), interpolation=cv2.INTER_CUBIC)
+        imcv = im.copy()
+        #Character Segmentation by YOLO:
+        #charPrediction = yoloCharacter.return_predict(im)
+        #character detection:
+        #resultCNN = rm.yoloCharDetection(charPrediction, im, characterRecognition, show=show) 
+        
+        resultOpenCV = rm.opencvReadPlate(imcv, characterRecognition, show=show)
+        if show == True:
+            print(">>Plate number CNN: ", resultCNN)
+            print(">>Plate number OpenCV: ", resultOpenCV)
     
     return True, resultCNN, resultOpenCV
 
