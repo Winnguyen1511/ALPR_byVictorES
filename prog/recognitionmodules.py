@@ -21,21 +21,41 @@ SEGMENT_HIGHLIM = 0.09
 
 INVERT_LIM = 200
 
-def firstCrop(img, predictions):
+def firstCrop(img, predictions, show=True):
     predictions.sort(key=lambda x: x.get('confidence'))
     xtop = predictions[-1].get('topleft').get('x')
     ytop = predictions[-1].get('topleft').get('y')
     xbottom = predictions[-1].get('bottomright').get('x')
     ybottom = predictions[-1].get('bottomright').get('y')
     firstCrop = img[ytop:ybottom, xtop:xbottom]
-    cv2.rectangle(img,(xtop,ytop),(xbottom,ybottom),(0,255,0),3)
+    if show == True:
+        tmpImg = img.copy()
+        cv2.rectangle(tmpImg,(xtop,ytop),(xbottom,ybottom),(0,255,0),3)
+        imsize = tmpImg.shape
+        w = imsize[1]
+        h = imsize[0]
+        if w < MIN_WIDTH or h < MIN_HEIGHT:
+            w_scale = math.ceil(MIN_WIDTH / w)
+            h_scale = math.ceil(MIN_HEIGHT / h)
+            scale = max(w_scale, h_scale)
+            w = w * scale
+            h = h * scale
+        if w > MAX_WIDTH or h > MAX_HEIGHT:
+            w_scale = math.ceil(w / MAX_WIDTH)
+            h_scale = math.ceil(h / MAX_HEIGHT)
+            scale = min(w_scale, h_scale)
+            w = math.floor(w / scale)
+            h = math.floor(h / scale)
+        tmpImg = cv2.resize(tmpImg, (w, h), interpolation=cv2.INTER_CUBIC)
+        cv2.imshow('Detection',tmpImg)
     return firstCrop
     
 
-def secondCrop(img):
+def secondCrop(img, show=True):
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     thresh =  cv2.adaptiveThreshold(gray,INVERT_LIM,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,39,1)
     edges = auto_canny(thresh, sigma=0.1)
+    
     cv_version = cv2.__version__
     if cv_version == '4.2.0':
         ctrs,_ = cv2.findContours(edges,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_TC89_L1)
@@ -61,7 +81,9 @@ def secondCrop(img):
     else:
         secondCrop = thresh
         # retimg = img
-    # cv2.imshow('thresh', thresh)
+    if show == True:
+        cv2.imshow('canny',edges)
+        cv2.imshow('thresh', thresh)
     # return retimg, secondCrop
     return secondCrop
 def auto_canny(image, sigma=0.33):

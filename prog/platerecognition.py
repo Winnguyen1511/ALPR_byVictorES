@@ -146,9 +146,11 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True)
     #Crop the plate out and second crop to reduce some background:
     resultCNN = ""; resultOpenCV = ""
     if len(platePrediction) > 0:
-        im = rm.firstCrop(im, platePrediction)
+        im = rm.firstCrop(im, platePrediction, show=show)
+        if show == True:
+            cv2.imshow('firstCrop', im)
         # cv2.imwrite('test.jpg', im)
-    im = rm.secondCrop(im)
+    im = rm.secondCrop(im, show=show)
     # cv2.imwrite('test2.jpg', im)
 
 
