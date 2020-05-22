@@ -5,7 +5,7 @@ import argparse
 import os
 from functools import reduce
 from progress.bar import IncrementalBar
-
+VERSION='2.2'
 
 def imgContrast(im):
     rms_contrast = 0
