@@ -59,17 +59,26 @@ def sysInit(platePb, plateMeta, charPb, charMeta,charCnn, gpu):
 
     return yoloPlate, yoloCharacter, characterRecognition
 
-def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
+def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile, sizefile):
     print(">> Testing mode:")
 
     testList = {}
+    sizeList = {}
     file = open(testfile, 'r')
+    sfile = open(sizefile, 'r')
     line =file.readline()
     while line and line != '\n':
         entry = line.split(" ")
         tmp = {entry[0]: entry[1].strip('\n')}
         testList.update(tmp)
         line =file.readline()
+    sline = sfile.readline()
+    while sline and sline != '\n':
+        entry = sline.split(" ")
+        tmp = {entry[0]: int(entry[1].strip('\n'))}
+        sizeList.update(tmp)
+        sline = sfile.readline()
+    
     # print(testList)
     total = len(testList)
     resManLen = [len(testList[key]) for key in testList]
@@ -77,6 +86,11 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
     #Stat for overall:
     countCNN = 0
     countOpenCV = 0
+
+    #Stat for plate detection:
+
+    gradePlateDetection = 0
+
     #Stat for character recognition:
     countSegmentedCNN = 0; countSegmentedOpenCV = 0
     countSuccessCharCNN = 0; countSuccessCharOpenCV = 0
@@ -90,7 +104,12 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
 
     for key in testList.keys():
         resMan = testList[key]
-        _,resCNN, resOpenCV = plateRecog(key,yoloPlate, yoloCharacter, characterRecognition, show=False)
+        _,resCNN, resOpenCV, resSize = plateRecog(key,yoloPlate, yoloCharacter, characterRecognition, show=False)
+        
+        tmpGrade = 1 - abs(resSize- sizeList[key]) / sizeList[key]
+        gradePlateDetection += tmpGrade
+
+        
         if resCNN == resMan:
             countCNN += 1
         if(len(resCNN) == len(resMan)):
@@ -108,28 +127,29 @@ def plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile):
             for i in range(0,len(resOpenCV)):
                 if resOpenCV[i] == resMan[i]:
                     countSuccessCharOpenCV += 1
-        tmp = key+' man:'+resMan+' cnn:'+resCNN+' opencv:'+resOpenCV+'\n'
+        tmp = key+' man:'+resMan+' plate:'+ str(tmpGrade)+' opencv:'+resOpenCV+'\n'
         logfile.write(tmp)
         bar.next()
     bar.finish()
     logfile.close()
     print(">> Testing Finished!")
     print(">> Statistic: ")
-    print("> Overall:")
-    print("CNN: %.2f %%" %(countCNN*100/total))
-    print("OpenCV: %.2f %%"%(countOpenCV*100/total))
-    print("> Character segmentation: ")
-    print("CNN: %.2f %%"%(countSegCNN*100/total))
-    print("OpenCV:%.2f %%"%(countSegOpenCV*100/total))
-    print("> Character recognition: ")
-    if countSegmentedCNN !=0:
-        print("CNN: %.2f %%"%(countSuccessCharCNN*100/countSegmentedCNN))
-    else:
-        print("CNN:0%")
-    if countSegmentedOpenCV !=0 :
-        print("OpenCV:%.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
-    else:
-        print("OpenCV:0%")
+    print("> Overall: %.2f %%"%(countOpenCV*100/total))
+    print("> Plate detection: %.2f %%"%(gradePlateDetection*100/total))
+    #print("CNN: %.2f %%" %(countCNN*100/total))
+    #print("OpenCV: %.2f %%"%(countOpenCV*100/total))
+    print("> Character segmentation: %.2f %%"%(countSegOpenCV*100/total))
+    #print("CNN: %.2f %%"%(countSegCNN*100/total))
+    #print("OpenCV:%.2f %%"%(countSegOpenCV*100/total))
+    print("> Character recognition: %.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
+    # if countSegmentedCNN !=0:
+    #     print("CNN: %.2f %%"%(countSuccessCharCNN*100/countSegmentedCNN))
+    # else:
+    #     print("CNN:0%")
+    # if countSegmentedOpenCV !=0 :
+    #     print("OpenCV:%.2f %%"%(countSuccessCharOpenCV*100/countSegmentedOpenCV))
+    # else:
+    #     print("OpenCV:0%")
 
 def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True):
     #Init the recognition configuration:
@@ -145,15 +165,16 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True)
     # print(len(platePrediction))
     #Crop the plate out and second crop to reduce some background:
     resultCNN = ""; resultOpenCV = ""
+    area = im.shape[1] * im.shape[0]
     if len(platePrediction) > 0:
-        im = rm.firstCrop(im, platePrediction, show=show)
+        im, area = rm.firstCrop(im, platePrediction, show=show)
         if show == True:
             cv2.imshow('firstCrop', im)
         # cv2.imwrite('test.jpg', im)
     im = rm.secondCrop(im, show=show)
     # cv2.imwrite('test2.jpg', im)
 
-
+    cv2.imshow('secondCrop',im)
 #resize the capture of plate before we detect the character:
     imsize = im.shape
     w = imsize[1]
@@ -184,10 +205,10 @@ def plateRecog(image, yoloPlate, yoloCharacter, characterRecognition, show=True)
     
     resultOpenCV = rm.opencvReadPlate(imcv, characterRecognition, show=show)
     if show == True:
-        print(">>Plate number CNN: ", resultCNN)
+        #print(">>Plate number CNN: ", resultCNN)
         print(">>Plate number OpenCV: ", resultOpenCV)
     
-    return True, resultCNN, resultOpenCV
+    return True, resultCNN, resultOpenCV, area
 
 
 def main():
@@ -202,6 +223,7 @@ def main():
     parser.add_argument("gpuMode")
     parser.add_argument("testmode")
     parser.add_argument("testfile")
+    parser.add_argument("sizefile")
     args = parser.parse_args()
     workspace = args.workspace
     os.chdir(workspace)
@@ -218,6 +240,7 @@ def main():
 
     testmode = args.testmode
     testfile =args.testfile
+    sizefile = args.sizefile
     #Start to run the program:
     yoloPlate, yoloCharacter, characterRecognition = sysInit(platePbDir, plateMetaDir,
                 charPbDir, charMetaDir, charCnnDir, gpuMode)
@@ -240,7 +263,7 @@ def main():
                 break 
             # image = workspace + image 
             start = timeit.default_timer()
-            res, _, _ = plateRecog(image, yoloPlate, yoloCharacter, characterRecognition)
+            res, _, _, _ = plateRecog(image, yoloPlate, yoloCharacter, characterRecognition)
             stop = timeit.default_timer()
             print("Runtime: ", stop - start)
             if(res == True):
@@ -254,7 +277,7 @@ def main():
                 print("Error: no such file or directory!")
             else:
                 start = timeit.default_timer()
-                plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile)
+                plateRecogTest(yoloPlate, yoloCharacter, characterRecognition, testfile, sizefile)
                 stop = timeit.default_timer()
                 print("Runtime: ", stop - start)
     else:

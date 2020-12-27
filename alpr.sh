@@ -26,6 +26,7 @@ META_DIR=$DATABASE_DIR"meta/"
 PROTOBUF_DIR=$DATABASE_DIR"protobuf/"
 MODE="normal"
 TESTFILE="_"
+SIZEFILE="_"
 
 META_PLATE=$META_DIR"yolo-plate.meta"
 META_CHARACTER=$META_DIR"yolo-character.meta"
@@ -51,7 +52,7 @@ helpFunction()
     echo "Usage: ./alpr --setup [global]"
     echo "Usage: ./alpr --rename [directory to rename]"
     echo "Usage: ./alpr --testmaker [test directory]"
-    echo "Usage: ./alpr --test [test directory] [test file]"
+    echo "Usage: ./alpr --test [test directory] [test file] [size_file]"
 }
 
 setupGlobalFunction()
@@ -145,6 +146,7 @@ if [ "$1" == "--test" ];then
     MODE="test"
     WORKSPACE=$2
     TESTFILE=$3
+    SIZEFILE=$4
 fi
 while [ -n "$1" ]; do
     case "$1" in
@@ -200,4 +202,4 @@ if [ ! -f $META_CHARACTER ] || [ ! -f $PROTOBUF_CHARACTER ]; then
     exit
 fi
 
-python3 $PROG $WORKSPACE $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN $GPU $MODE $TESTFILE
+python3 $PROG $WORKSPACE $PROTOBUF_PLATE $META_PLATE $PROTOBUF_CHARACTER $META_CHARACTER $CNN $GPU $MODE $TESTFILE $SIZEFILE

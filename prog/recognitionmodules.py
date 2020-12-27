@@ -28,6 +28,7 @@ def firstCrop(img, predictions, show=True):
     xbottom = predictions[-1].get('bottomright').get('x')
     ybottom = predictions[-1].get('bottomright').get('y')
     firstCrop = img[ytop:ybottom, xtop:xbottom]
+    area = firstCrop.shape[0] * firstCrop.shape[1]
     if show == True:
         tmpImg = img.copy()
         cv2.rectangle(tmpImg,(xtop,ytop),(xbottom,ybottom),(0,255,0),3)
@@ -48,7 +49,7 @@ def firstCrop(img, predictions, show=True):
             h = math.floor(h / scale)
         tmpImg = cv2.resize(tmpImg, (w, h), interpolation=cv2.INTER_CUBIC)
         cv2.imshow('Detection',tmpImg)
-    return firstCrop
+    return firstCrop, area
     
 
 def secondCrop(img, show=True):
